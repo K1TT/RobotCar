@@ -17,7 +17,7 @@
 //======================================================================
 
 #include <stdlib.h>
-#include <initio.h>
+#include "initio.h"
 #include <curses.h>
 
 //======================================================================
@@ -33,37 +33,43 @@ void line_follower(int argc, char *argv[])
   int lfL,lfR;	// status of line sensors
 
   // initio_DriveForward (... ); // todo: Initially, try to drive straight forward
+  
+  // CUSTOM TO DO LIST
+  // - Modify Initio library to output sensor data to be used to collect data
+  // - Adjust values and if statements to make software more efficient
 
   while (ch != 'q') {
     mvprintw(1, 1,"%s: Press 'q' to end program", argv[0]);
 
     irL = initio_IrLeft();
     irR = initio_IrRight();
-    lfL = 0; // todo: replace by read left line sensor
-    lfR = 0; // todo: replace by read right line sensor
+    lfL = initio_IrLineLeft();
+    lfR = initio_IrLineRight();
 
     if (irL != 0 || irR != 0) {
       mvprintw(3, 1,"Action: Stop (IR sensors: %d, %d)     ", irL, irR);
       initio_DriveForward (0); // Stop
     }
     // no obstacle ahead, so focus on line following
-    else if ( 1 /* todo: change */) { 
+    else if (lfL == 0 && lfR == 0) { 
       mvprintw(3, 1,"Action: Straight (Line sensors: %d, %d)    ", lfL, lfR);
-      // todo: move straight forward
+	  initio_DriveForward(80);
     }
-    else if ( 1 /* todo: change */ ) {
+    else if (lfR != 0) {
       // car is too much on the right
       mvprintw(3, 1,"Action: Spin left (Line sensors: %d, %d)    ", lfL, lfR);
-      // todo: turn left
+	  initio_SpinLeft(30);
+	  delay(500);
     }
-    else if ( 1 /* todo: change */ ) {
+    else if (lfL != 0) {
       // car is too much on the left
       mvprintw(3, 1,"Action: Spin right (Line sensors: %d, %d)    ", lfL, lfR);
-      // todo: turn right
+      initio_SpinRight(30);
+	  delay(500);
     }
     else {
       mvprintw(3, 1,"Lost my line (Line sensors: %d, %d)        ", lfL, lfR);
-      // todo: Stop
+      initio_DriveForward(0);
     }
 
     ch = getch();
