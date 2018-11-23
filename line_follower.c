@@ -14,6 +14,8 @@
 // Compilation: 
 // gcc -o line_follower -Wall -Werror -lcurses -lwiringPi -lpthread -linitio line_follower.c
 //
+// Updated by group ESD36 18.11.2018
+//
 //======================================================================
 
 #include <stdlib.h>
@@ -35,8 +37,7 @@ void line_follower(int argc, char *argv[])
   int lfL,lfR;	// status of line sensors
 
   // initio_DriveForward (... ); // todo: Initially, try to drive straight forward
-  pinMode (37, OUTPUT) ; // set Pin 37 to output mode
-
+ 
   while (ch != 'q') {
     mvprintw(1, 1,"%s: Press 'q' to end program", argv[0]);
 
@@ -45,11 +46,9 @@ void line_follower(int argc, char *argv[])
     lfL = initio_IrLineLeft();
     lfR = initio_IrLineRight();
 
-	digitalWrite (37, 0);
-
     if (irL != 0 || irR != 0) {
       mvprintw(3, 1,"Action: Stop (IR sensors: %d, %d)     ", irL, irR);
-      initio_DriveForward (0); // StopWall
+      initio_DriveForward (0); // Stop obstacle ahead
     }
     // no obstacle ahead, so focus on line following
     else if (lfL == 0 && lfR == 0) { 
@@ -63,14 +62,12 @@ void line_follower(int argc, char *argv[])
     else if (lfR != 0) {
       // car is too much on the right
       mvprintw(3, 1,"Action: Spin left (Line sensors: %d, %d)    ", lfL, lfR);
-	digitalWrite (37, 1);
 	initio_SpinLeft(100);
 	
     }
     else if (lfL != 0) {
       // car is too much on the left
       mvprintw(3, 1,"Action: Spin right (Line sensors: %d, %d)    ", lfL, lfR);
-	digitalWrite (37, 1);
 	initio_SpinRight(100);
     }
     else {
