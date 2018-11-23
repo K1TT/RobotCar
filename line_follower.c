@@ -57,7 +57,7 @@ void line_follower(int argc, char *argv[])
     }
 	else if(lfR !=0 && lfL !=0){
 		mvprintw(3, 1,"Action: Backwards (Line sensors: %d, %d)    ", lfL, lfR);
-		initio_DriveReverse(80);
+		initio_DriveReverse(70);
 	}
     else if (lfR != 0) {
       // car is too much on the right
