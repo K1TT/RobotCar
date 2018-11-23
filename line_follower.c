@@ -17,68 +17,54 @@
 //======================================================================
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <initio.h>
 #include <curses.h>
 
 //======================================================================
 // line_follower():
-// Simple program to test infrared line sensors:
+// Simple program to test infrared line sensors:gcc -o line_follower -Wall -Werror -lcurses -lwiringPi -lpthread -linitio line_follower.c
+
 // Drive along a black line. The black line is bordered on both sides
 // with a white line to ensure contrast for the line sensors.
 //======================================================================
 void line_follower(int argc, char *argv[]) 
 {
   int ch = 0;
-  //int irL,irR;	// status of infrared sensors
+  int irL,irR;	// status of infrared sensors
   int lfL,lfR;	// status of line sensors
-  //int time=0, last_time=0;
-  //int bled=0;
 
   // initio_DriveForward (... ); // todo: Initially, try to drive straight forward
   pinMode (37, OUTPUT) ; // set Pin 37 to output mode
-  
-  // CUSTOM TO DO LIST
-  // - Modify Initio library to output sensor data to be used to collect data
-  // - Adjust values and if statements to make software more efficient
 
   while (ch != 'q') {
     mvprintw(1, 1,"%s: Press 'q' to end program", argv[0]);
 
-    //irL = initio_IrLeft();
-    //irR = initio_IrRight();
+    irL = initio_IrLeft();
+    irR = initio_IrRight();
     lfL = initio_IrLineLeft();
     lfR = initio_IrLineRight();
 
 	digitalWrite (37, 0);
 
-    /*if (irL != 0 || irR != 0) {
+    if (irL != 0 || irR != 0) {
       mvprintw(3, 1,"Action: Stop (IR sensors: %d, %d)     ", irL, irR);
-      initio_DriveForward (0); // StopWall -Werror -mfloat-abi=hard -linitio -lcurses -lwiringPi -lpthread line_follower.c
-esd36@navio-rpi:~/LineFollow2$ sudo ./line_follower
-esd36@navio-rpi:~/LineFollow2$ make line_follower
-gcc -o line_follower -Wall -Werror -mfloat-abi=hard -linitio -lcurses -lwiringPi -lpthread line_follower.c
-esd36@navio-rpi:~/LineFollow2$ sudo ./line_follower
-esd36@navio-rpi:~/LineFollow2$ make line_follower
-gcc -o line_follower -Wall -Werror -mfloat-abi=hard -linitio -lcurses -lwiringPi -lpthread line_follower.c
-esd36@navio-rpi:~/LineFollow2$ sudo ./line_follower
-esd36@navio-rpi:~/LineFollow2$ make l
-    }*/
+      initio_DriveForward (0); // StopWall
+    }
     // no obstacle ahead, so focus on line following
-    if (lfL == 0 && lfR == 0) { 
+    else if (lfL == 0 && lfR == 0) { 
       mvprintw(3, 1,"Action: Straight (Line sensors: %d, %d)    ", lfL, lfR);
 	  initio_DriveForward(70);
     }
 	else if(lfR !=0 && lfL !=0){
 		mvprintw(3, 1,"Action: Backwards (Line sensors: %d, %d)    ", lfL, lfR);
-		initio_DriveReverse(70);
+		initio_DriveReverse(80);
 	}
     else if (lfR != 0) {
       // car is too much on the right
       mvprintw(3, 1,"Action: Spin left (Line sensors: %d, %d)    ", lfL, lfR);
 	digitalWrite (37, 1);
 	initio_SpinLeft(100);
-	//initio_DriveForward(0);
-	//initio_TurnForward(60, 30);
 	
     }
     else if (lfL != 0) {
@@ -86,21 +72,11 @@ esd36@navio-rpi:~/LineFollow2$ make l
       mvprintw(3, 1,"Action: Spin right (Line sensors: %d, %d)    ", lfL, lfR);
 	digitalWrite (37, 1);
 	initio_SpinRight(100);
-	//initio_TurnForward(30, 60);
     }
     else {
       mvprintw(3, 1,"Lost my line (Line sensors: %d, %d)        ", lfL, lfR);
       initio_DriveForward(0);
     }
-
-/*
-    time = millis();
-    if (time > last_time+500) {
-      bled = !bled;
-      digitalWrite (37, bled);  // set Pin 37 to current value
-      last_time = time;
-    }
-*/
     ch = getch();
     if (ch != ERR)
       mvprintw(2, 1,"Key code: '%c' (%d)", ch, ch);
@@ -130,4 +106,3 @@ int main (int argc, char *argv[])
   endwin();           // curses: cleanup the library
   return EXIT_SUCCESS;
 }
-
